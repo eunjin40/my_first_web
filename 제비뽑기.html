@@ -1,0 +1,1046 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>허재영 축의금뽑기</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* ===== 색상 테마 (파스텔 핑크 계열) ===== */
+  :root {
+    --bg1: #fff0f5;
+    --bg2: #ffe4ec;
+    --card: #ffffff;
+    --pink: #ff8fb1;
+    --pink-dark: #f2668b;
+    --text: #6b4157;
+    --sub: #a87c92;
+    --line: #ffd1df;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Gaegu', 'Jua', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 10% 20%, #ffe1ec 0 60px, transparent 61px),
+      radial-gradient(circle at 90% 80%, #ffeaf2 0 90px, transparent 91px),
+      linear-gradient(160deg, var(--bg1), var(--bg2));
+    background-attachment: fixed;
+    padding: 24px 16px 40px;
+    overflow-x: hidden;
+  }
+
+  /* 배경에 떠다니는 하트 */
+  .float-heart {
+    position: fixed;
+    bottom: -40px;
+    opacity: .5;
+    pointer-events: none;
+    animation: floatUp linear infinite;
+    z-index: 0;
+  }
+  @keyframes floatUp {
+    to { transform: translateY(-115vh) rotate(30deg); }
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; }
+
+  /* ===== 제목 ===== */
+  header { text-align: center; margin-bottom: 20px; }
+  h1 {
+    font-family: 'Jua', sans-serif;
+    font-size: clamp(30px, 7vw, 48px);
+    color: var(--pink-dark);
+    text-shadow: 3px 3px 0 #fff, 5px 5px 0 var(--line);
+    letter-spacing: 1px;
+  }
+  header p { color: var(--sub); font-size: 20px; margin-top: 4px; }
+
+  /* ===== 레이아웃 ===== */
+  .main {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 760px) { .main { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card);
+    border: 3px solid var(--line);
+    border-radius: 28px;
+    padding: 20px;
+    box-shadow: 0 8px 0 var(--line);
+  }
+
+  /* ===== 제비통 영역 ===== */
+  .jar-box { text-align: center; }
+  .jar-holder { width: 100%; max-width: 440px; margin: 0 auto; aspect-ratio: 1 / 1; }
+  #jar { width: 100%; height: 100%; display: block; cursor: pointer; touch-action: manipulation; }
+
+  .remain {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 16px;
+    border-radius: 999px;
+    background: #fff0f5;
+    border: 2px solid var(--line);
+    font-size: 20px;
+  }
+  .remain b { color: var(--pink-dark); font-family: 'Jua', sans-serif; font-weight: normal; }
+
+  .actions {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    justify-content: center; margin-top: 14px;
+  }
+  .status { margin-top: 12px; font-size: 21px; min-height: 28px; color: var(--sub); }
+
+  /* ===== 공통 버튼 ===== */
+  .btn {
+    font-family: 'Jua', sans-serif;
+    font-size: 18px;
+    padding: 11px 18px;
+    border: none;
+    border-radius: 16px;
+    background: var(--pink);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--pink-dark);
+    transition: transform .1s;
+    white-space: nowrap;
+  }
+  .btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--pink-dark); }
+  .btn.ghost {
+    background: #fff;
+    color: var(--pink-dark);
+    border: 2px solid var(--line);
+    box-shadow: 0 4px 0 var(--line);
+  }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ===== 설정 영역 ===== */
+  h2 { font-family: 'Jua', sans-serif; font-size: 22px; color: var(--pink-dark); margin-bottom: 10px; }
+  .hint { font-size: 17px; color: var(--sub); margin: -4px 0 10px; }
+  .add-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  input[type=text], input[type=number] {
+    font-family: inherit;
+    font-size: 19px;
+    padding: 10px 12px;
+    border: 3px solid var(--line);
+    border-radius: 16px;
+    outline: none;
+    color: var(--text);
+    min-width: 0;
+  }
+  input[type=text] { flex: 1; }
+  input[type=number] { width: 68px; text-align: center; }
+  input:focus { border-color: var(--pink); }
+
+  .items {
+    list-style: none;
+    max-height: 280px;
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 6px;
+    margin-bottom: 12px;
+  }
+  .items li {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px 6px 12px;
+    border-radius: 14px;
+    background: #fff8fb;
+    border: 2px solid var(--line);
+    font-size: 19px;
+  }
+  .items .name { flex: 1; overflow-wrap: anywhere; }
+  .items .count { display: flex; align-items: center; gap: 4px; }
+  .items .count span { min-width: 34px; text-align: center; font-family: 'Jua', sans-serif; }
+  .mini {
+    border: none; cursor: pointer;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--line); color: var(--pink-dark);
+    font-size: 18px; line-height: 28px;
+  }
+  .mini:hover { background: var(--pink); color: #fff; }
+  .mini.del { background: none; color: var(--sub); }
+  .total { font-size: 18px; color: var(--sub); text-align: right; }
+
+  .history-card { margin-top: 20px; }
+  .history { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; font-size: 18px; }
+  .history li {
+    background: #fff0f5;
+    border: 2px dashed var(--pink);
+    border-radius: 999px;
+    padding: 4px 12px;
+  }
+  .empty { color: var(--sub); font-size: 18px; }
+
+  /* ===== 펼쳐진 제비(결과 팝업) ===== */
+  .modal {
+    position: fixed; inset: 0;
+    background: rgba(107, 65, 87, .35);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 50; padding: 16px;
+  }
+  .modal.show { display: flex; }
+  .paper {
+    position: relative;
+    width: 100%; max-width: 340px;
+    padding: 34px 24px 24px;
+    text-align: center;
+    border-radius: 10px;
+    /* 종이 줄무늬와 가운데 접힌 자국 */
+    background:
+      linear-gradient(to bottom, transparent 49.5%, rgba(242, 102, 139, .18) 50%, transparent 50.5%),
+      repeating-linear-gradient(to bottom, #fffdf6 0 30px, #fdeef3 30px 31px);
+    box-shadow: 0 12px 0 rgba(242, 102, 139, .25), 0 18px 40px rgba(107, 65, 87, .25);
+    transform-origin: 50% 50%;
+    animation: unfold .7s cubic-bezier(.2, 1.3, .4, 1);
+  }
+  /* 종이가 접혀 있다가 펼쳐지는 애니메이션 */
+  @keyframes unfold {
+    0%   { transform: perspective(700px) rotateX(85deg) scale(.3); opacity: 0; }
+    60%  { transform: perspective(700px) rotateX(-8deg) scale(1.03); opacity: 1; }
+    100% { transform: perspective(700px) rotateX(0) scale(1); }
+  }
+  /* 종이 위 하트 테이프 */
+  .paper::before {
+    content: '💗';
+    position: absolute; top: -18px; left: 50%;
+    transform: translateX(-50%) rotate(-8deg);
+    font-size: 32px;
+  }
+  .paper .emoji { font-size: 50px; }
+  .paper .label { font-size: 21px; color: var(--sub); margin-top: 4px; }
+  .paper .result {
+    font-family: 'Jua', sans-serif;
+    font-size: 42px;
+    color: var(--pink-dark);
+    margin: 8px 0 18px;
+    overflow-wrap: anywhere;
+  }
+
+  /* 꽃가루 캔버스 */
+  #confetti {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 60;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>💝 허재영 축의금뽑기 💝</h1>
+    <p>통 속의 제비를 하나 콕! 집어 보세요 🐰</p>
+  </header>
+
+  <div class="main">
+    <!-- 제비통 -->
+    <section class="card jar-box">
+      <div class="jar-holder">
+        <canvas id="jar" aria-label="제비가 들어 있는 통. 제비를 눌러 뽑을 수 있어요."></canvas>
+      </div>
+      <div class="remain">남은 제비 <b id="remainCount">0</b>장</div>
+      <div class="actions">
+        <button class="btn" id="shuffleBtn">🌀 섞기</button>
+        <button class="btn" id="randomBtn">✋ 아무거나 뽑기</button>
+        <button class="btn ghost" id="refillBtn">📥 다시 넣기</button>
+      </div>
+      <div class="status" id="status">통 속의 제비를 직접 눌러서 뽑아도 돼요 ✨</div>
+    </section>
+
+    <!-- 제비 내용 설정 -->
+    <section class="card">
+      <h2>🎀 제비 만들기</h2>
+      <p class="hint">내용과 장수를 정하면 통에 넣어 드려요</p>
+      <div class="add-row">
+        <input type="text" id="newItem" placeholder="예: 7만원, 밥 한 끼" maxlength="20">
+        <input type="number" id="newCount" value="1" min="1" max="20" aria-label="장수">
+        <button class="btn" id="addBtn">추가</button>
+      </div>
+      <ul class="items" id="itemList"></ul>
+      <div class="total" id="totalText"></div>
+    </section>
+  </div>
+
+  <!-- 뽑기 기록 -->
+  <section class="card history-card">
+    <h2>📜 뽑기 기록</h2>
+    <ul class="history" id="history"></ul>
+    <p class="empty" id="historyEmpty">아직 뽑은 제비가 없어요</p>
+  </section>
+</div>
+
+<!-- 펼쳐진 제비 -->
+<div class="modal" id="modal">
+  <div class="paper" id="paper">
+    <div class="emoji" id="resultEmoji">🎉</div>
+    <div class="label">허재영의 축의금은…</div>
+    <div class="result" id="resultText"></div>
+    <button class="btn" id="closeBtn">확인했어요!</button>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+/* =========================================================
+   기본 설정
+   ========================================================= */
+
+// 기본 제비 내용과 장수
+const DEFAULT_ENTRIES = [
+  { name: '1만원', count: 2 },
+  { name: '3만원', count: 2 },
+  { name: '5만원', count: 2 },
+  { name: '10만원', count: 1 },
+  { name: '밥 한 끼', count: 1 },
+  { name: '마음만 💌', count: 1 },
+  { name: '꽝 😝', count: 1 }
+];
+
+// 제비 종이 색상 (파스텔 톤)
+const PAPER_COLORS = ['#ffb3c9', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff'];
+
+const MAX_SLIPS = 40;          // 통에 넣을 수 있는 최대 장수
+const SHUFFLE_TIME = 2600;     // 섞는 시간(밀리초)
+const PICK_TIME = 900;         // 제비가 통에서 올라오는 시간(밀리초)
+
+// 통 안에서 제비가 놓이는 영역 (캔버스 크기에 대한 비율)
+const PILE = { cx: 0.5, cy: 0.58, rx: 0.25, ry: 0.2 };
+const SLIP_W = 0.085;          // 제비 한 장의 너비 비율
+const SLIP_H = 0.055;          // 제비 한 장의 높이 비율
+
+/* =========================================================
+   상태 값
+   ========================================================= */
+let entries = DEFAULT_ENTRIES.map(e => ({ ...e }));  // 제비 내용 목록
+let slips = [];          // 통 안에 있는 제비들
+let mode = 'idle';       // 'idle'(대기) | 'shuffle'(섞는 중) | 'pick'(뽑는 중) | 'reveal'(결과 보는 중)
+let picking = null;      // 지금 뽑혀 올라오는 제비
+let hoverSlip = null;    // 마우스가 올라간 제비
+
+/* =========================================================
+   요소 가져오기
+   ========================================================= */
+const canvas = document.getElementById('jar');
+const ctx = canvas.getContext('2d');
+const statusEl = document.getElementById('status');
+const remainEl = document.getElementById('remainCount');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const randomBtn = document.getElementById('randomBtn');
+const refillBtn = document.getElementById('refillBtn');
+const addBtn = document.getElementById('addBtn');
+const itemList = document.getElementById('itemList');
+const totalText = document.getElementById('totalText');
+const newItemInput = document.getElementById('newItem');
+const newCountInput = document.getElementById('newCount');
+const historyEl = document.getElementById('history');
+const historyEmpty = document.getElementById('historyEmpty');
+const modal = document.getElementById('modal');
+const paper = document.getElementById('paper');
+const resultText = document.getElementById('resultText');
+const resultEmoji = document.getElementById('resultEmoji');
+
+/* =========================================================
+   도우미 함수
+   ========================================================= */
+
+// 감속 곡선: 처음엔 빠르게, 끝으로 갈수록 부드럽게 멈춤
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+// 살짝 튕기며 도착하는 곡선
+function easeOutBack(t) { const c = 1.6; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); }
+
+// 배열 무작위 섞기 (피셔-예이츠)
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// 캔버스 한 변 길이(CSS 픽셀)
+function canvasSize() { return canvas.getBoundingClientRect().width; }
+
+/* =========================================================
+   제비 만들기 / 통에 넣기
+   ========================================================= */
+
+// 제비 내용 목록대로 종이를 만들어 통에 넣기
+function fillJar() {
+  const contents = [];
+  entries.forEach(e => { for (let k = 0; k < e.count; k++) contents.push(e.name); });
+  shuffleArray(contents);
+
+  slips = contents.map((content, i) => ({
+    content,                                   // 제비에 적힌 내용(뽑기 전엔 안 보임)
+    color: PAPER_COLORS[i % PAPER_COLORS.length],
+    angle: Math.random() * Math.PI * 2,         // 통 중심을 기준으로 한 위치 각도
+    r: Math.sqrt(Math.random()) * 0.92,         // 중심에서의 거리(0~1)
+    tilt: (Math.random() - 0.5) * 1.4,          // 종이 기울기
+    total: 0                                    // 섞을 때 돌아갈 전체 각도
+  }));
+  updateRemain();
+}
+
+// 남은 내용들을 다시 무작위로 나눠 담기 (섞을 때 사용)
+function redistributeContents() {
+  const contents = shuffleArray(slips.map(s => s.content));
+  slips.forEach((s, i) => { s.content = contents[i]; });
+}
+
+// 제비 한 장의 현재 화면 위치 계산 (비율 좌표)
+function slipPosition(s, progress = 0) {
+  const a = s.angle + s.total * progress;
+  return {
+    x: PILE.cx + Math.cos(a) * s.r * PILE.rx,
+    y: PILE.cy + Math.sin(a) * s.r * PILE.ry,
+    rot: s.tilt + s.total * progress * 0.35
+  };
+}
+
+/* =========================================================
+   그리기
+   ========================================================= */
+let shuffleProgress = 0;   // 섞기 진행 정도(0~1, 감속 적용됨)
+
+function draw() {
+  const S = canvasSize();
+  ctx.clearRect(0, 0, S, S);
+
+  drawJarBack(S);
+
+  // 제비들을 위쪽(뒤)부터 그려서 앞뒤 느낌 내기
+  const list = slips.map(s => ({ s, p: slipPosition(s, shuffleProgress) }))
+                    .sort((a, b) => a.p.y - b.p.y);
+  list.forEach(({ s, p }) => {
+    const lift = (s === hoverSlip && mode === 'idle') ? 1.18 : 1;
+    drawSlip(S, p.x, p.y - (lift > 1 ? 0.01 : 0), p.rot, lift, s.color);
+  });
+
+  drawJarFront(S);
+
+  // 통에서 올라오는 제비는 맨 위에 그리기
+  if (picking) {
+    drawSlip(S, picking.x, picking.y, picking.rot, picking.scale, picking.slip.color, true);
+  }
+
+  // 통이 비었을 때 안내
+  if (slips.length === 0 && !picking) {
+    ctx.fillStyle = '#a87c92';
+    ctx.font = `${S * 0.05}px Jua, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('텅~ 비었어요', S * 0.5, S * 0.55);
+  }
+}
+
+// 둥근 사각형 경로
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+// 유리병 뒷면 (안쪽 배경)
+function drawJarBack(S) {
+  // 바닥 그림자
+  ctx.beginPath();
+  ctx.ellipse(S * 0.5, S * 0.94, S * 0.3, S * 0.035, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(242, 102, 139, .15)';
+  ctx.fill();
+
+  // 병 몸통 안쪽
+  roundRect(S * 0.16, S * 0.27, S * 0.68, S * 0.65, S * 0.13);
+  ctx.fillStyle = 'rgba(255, 240, 245, .9)';
+  ctx.fill();
+}
+
+// 유리병 앞면 (테두리, 반짝임, 리본, 얼굴 스티커)
+function drawJarFront(S) {
+  // 병 몸통 테두리
+  roundRect(S * 0.16, S * 0.27, S * 0.68, S * 0.65, S * 0.13);
+  ctx.lineWidth = S * 0.012;
+  ctx.strokeStyle = '#ffb3c9';
+  ctx.stroke();
+
+  // 병 주둥이
+  roundRect(S * 0.3, S * 0.15, S * 0.4, S * 0.14, S * 0.04);
+  ctx.fillStyle = 'rgba(255, 240, 245, .6)';
+  ctx.fill();
+  ctx.stroke();
+
+  // 유리 반짝임
+  ctx.beginPath();
+  ctx.moveTo(S * 0.22, S * 0.4);
+  ctx.quadraticCurveTo(S * 0.21, S * 0.6, S * 0.24, S * 0.78);
+  ctx.lineWidth = S * 0.018;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = 'rgba(255, 255, 255, .85)';
+  ctx.stroke();
+
+  // 목에 두른 리본 띠
+  roundRect(S * 0.28, S * 0.255, S * 0.44, S * 0.045, S * 0.02);
+  ctx.fillStyle = '#ff8fb1';
+  ctx.fill();
+
+  // 리본 매듭
+  const bx = S * 0.68, by = S * 0.277;
+  ctx.fillStyle = '#f2668b';
+  [-1, 1].forEach(dir => {
+    ctx.beginPath();
+    ctx.moveTo(bx, by);
+    ctx.quadraticCurveTo(bx + dir * S * 0.07, by - S * 0.06, bx + dir * S * 0.06, by + S * 0.02);
+    ctx.closePath();
+    ctx.fill();
+  });
+  ctx.beginPath();
+  ctx.arc(bx, by, S * 0.015, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 얼굴 스티커 (귀여운 표정)
+  const fx = S * 0.5, fy = S * 0.845, fr = S * 0.058;
+  ctx.beginPath();
+  ctx.arc(fx, fy, fr, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  ctx.lineWidth = S * 0.006;
+  ctx.strokeStyle = '#ffb3c9';
+  ctx.stroke();
+
+  // 눈 (섞는 중에는 어지러운 눈)
+  ctx.fillStyle = '#6b4157';
+  ctx.strokeStyle = '#6b4157';
+  ctx.lineWidth = S * 0.005;
+  if (mode === 'shuffle') {
+    [-1, 1].forEach(d => {
+      ctx.beginPath();
+      ctx.arc(fx + d * fr * 0.38, fy - fr * 0.1, fr * 0.14, 0, Math.PI * 1.6);
+      ctx.stroke();
+    });
+  } else {
+    [-1, 1].forEach(d => {
+      ctx.beginPath();
+      ctx.arc(fx + d * fr * 0.38, fy - fr * 0.1, fr * 0.1, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+  // 볼터치
+  ctx.fillStyle = 'rgba(255, 143, 177, .55)';
+  [-1, 1].forEach(d => {
+    ctx.beginPath();
+    ctx.ellipse(fx + d * fr * 0.62, fy + fr * 0.2, fr * 0.16, fr * 0.1, 0, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  // 입
+  ctx.beginPath();
+  ctx.arc(fx, fy + fr * 0.12, fr * 0.18, 0.15 * Math.PI, 0.85 * Math.PI);
+  ctx.strokeStyle = '#6b4157';
+  ctx.stroke();
+}
+
+// 접힌 제비 종이 한 장 그리기
+function drawSlip(S, nx, ny, rot, scale, color, glow = false) {
+  const w = SLIP_W * S * scale;
+  const h = SLIP_H * S * scale;
+  ctx.save();
+  ctx.translate(nx * S, ny * S);
+  ctx.rotate(rot);
+
+  if (glow) {
+    ctx.shadowColor = 'rgba(255, 224, 102, .9)';
+    ctx.shadowBlur = 20 * scale;
+  } else {
+    ctx.shadowColor = 'rgba(107, 65, 87, .2)';
+    ctx.shadowBlur = 3;
+    ctx.shadowOffsetY = 2;
+  }
+
+  // 종이 바탕
+  roundRect(-w / 2, -h / 2, w, h, h * 0.18);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+
+  // 접힌 선
+  ctx.beginPath();
+  ctx.moveTo(-w / 2 + w * 0.08, 0);
+  ctx.lineTo(w / 2 - w * 0.08, 0);
+  ctx.lineWidth = Math.max(1, h * 0.06);
+  ctx.strokeStyle = 'rgba(107, 65, 87, .18)';
+  ctx.stroke();
+
+  // 접힌 모서리 (살짝 들린 부분)
+  ctx.beginPath();
+  ctx.moveTo(w / 2 - w * 0.22, -h / 2);
+  ctx.lineTo(w / 2, -h / 2);
+  ctx.lineTo(w / 2, -h / 2 + h * 0.34);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255, 255, 255, .55)';
+  ctx.fill();
+
+  // 작은 하트 도장
+  ctx.fillStyle = 'rgba(242, 102, 139, .7)';
+  ctx.font = `${h * 0.42}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('♥', -w * 0.24, h * 0.22);
+
+  ctx.restore();
+}
+
+/* =========================================================
+   캔버스 크기 맞추기 (고해상도 화면 대응)
+   ========================================================= */
+function resizeCanvas() {
+  const S = canvasSize();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = S * dpr;
+  canvas.height = S * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}
+
+/* =========================================================
+   섞기 (자연스럽게 감속하며 빙글빙글)
+   ========================================================= */
+function shuffle(thenPick = null) {
+  if (mode !== 'idle' || slips.length === 0) return;
+  mode = 'shuffle';
+  setButtons();
+  statusEl.textContent = '샤카샤카 섞는 중… 🌀';
+  initAudio();
+
+  // 내용도 다시 무작위로 나눠 담기
+  redistributeContents();
+
+  // 제비마다 도는 양을 다르게 해서 자리가 뒤섞이게 함
+  slips.forEach(s => {
+    const dir = Math.random() < 0.85 ? 1 : -1;
+    s.total = dir * (Math.PI * 2) * (2.5 + Math.random() * 2.5);
+  });
+
+  const start = performance.now();
+  let lastStep = 0;
+
+  function frame(now) {
+    const t = Math.min((now - start) / SHUFFLE_TIME, 1);
+    shuffleProgress = easeOutCubic(t);
+    draw();
+
+    // 일정하게 돌 때마다 사각사각 소리 (감속하면 소리도 뜸해짐)
+    const step = Math.floor(shuffleProgress * 28);
+    if (step !== lastStep) { lastStep = step; rustle(); }
+
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      // 섞기가 끝나면 최종 위치를 새 기준 위치로 저장
+      slips.forEach(s => {
+        s.angle += s.total;
+        s.tilt += s.total * 0.35;
+        s.total = 0;
+      });
+      shuffleProgress = 0;
+      mode = 'idle';
+      setButtons();
+      draw();
+      if (thenPick) {
+        pickSlip(slips[Math.floor(Math.random() * slips.length)]);
+      } else {
+        statusEl.textContent = '다 섞었어요! 마음에 드는 제비를 콕 눌러 보세요 👆';
+      }
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* =========================================================
+   제비 뽑기
+   ========================================================= */
+function pickSlip(slip) {
+  if (mode !== 'idle' || !slip) return;
+  mode = 'pick';
+  setButtons();
+  hoverSlip = null;
+  canvas.style.cursor = 'default';
+  statusEl.textContent = '두근두근… 펼쳐 볼게요 💓';
+  initAudio();
+  pop();
+
+  // 통에서 꺼내기
+  const from = slipPosition(slip);
+  slips = slips.filter(s => s !== slip);
+  updateRemain();
+
+  picking = { slip, x: from.x, y: from.y, rot: from.rot, scale: 1 };
+  const target = { x: 0.5, y: 0.1, rot: 0, scale: 2.4 };
+  const start = performance.now();
+
+  function frame(now) {
+    const t = Math.min((now - start) / PICK_TIME, 1);
+    const e = easeOutBack(t);
+    picking.x = from.x + (target.x - from.x) * e;
+    picking.y = from.y + (target.y - from.y) * e;
+    picking.rot = from.rot + (target.rot - from.rot) * easeOutCubic(t);
+    picking.scale = 1 + (target.scale - 1) * e;
+    draw();
+
+    if (t < 1) requestAnimationFrame(frame);
+    else reveal(slip.content);
+  }
+  requestAnimationFrame(frame);
+}
+
+// 펼쳐서 결과 보여주기
+function reveal(content) {
+  mode = 'reveal';
+  resultText.textContent = content;
+  resultEmoji.textContent = pickEmoji(content);
+  // 펼치는 애니메이션을 매번 다시 재생
+  paper.style.animation = 'none';
+  void paper.offsetWidth;
+  paper.style.animation = '';
+  modal.classList.add('show');
+  statusEl.textContent = `결과: ${content} 🎊`;
+  fanfare();
+  launchConfetti();
+  addHistory(content);
+}
+
+// 결과 확인 후 닫기
+function closeModal() {
+  if (!modal.classList.contains('show')) return;
+  modal.classList.remove('show');
+  picking = null;
+  mode = 'idle';
+  setButtons();
+  draw();
+  statusEl.textContent = slips.length
+    ? '다음 제비도 뽑아 볼까요? 🍀'
+    : '제비를 모두 뽑았어요! [다시 넣기]를 눌러 주세요 📥';
+}
+
+// 결과에 어울리는 이모지 고르기
+function pickEmoji(text) {
+  if (text.includes('꽝')) return '😝';
+  if (text.includes('마음')) return '💌';
+  if (text.includes('밥')) return '🍚';
+  const num = parseInt(text.replace(/[^0-9]/g, ''), 10);
+  if (num >= 10) return '🤑';
+  if (num >= 5) return '🥰';
+  return '🎉';
+}
+
+/* =========================================================
+   캔버스 클릭으로 제비 고르기
+   ========================================================= */
+
+// 화면 좌표를 비율 좌표로 바꾸기
+function toNormalized(evt) {
+  const rect = canvas.getBoundingClientRect();
+  return { x: (evt.clientX - rect.left) / rect.width, y: (evt.clientY - rect.top) / rect.height };
+}
+
+// 해당 위치에 있는 제비 찾기 (앞에 있는 것부터)
+function slipAt(pt) {
+  const list = slips.map(s => ({ s, p: slipPosition(s) })).sort((a, b) => b.p.y - a.p.y);
+  for (const { s, p } of list) {
+    // 기울어진 종이를 기준으로 좌표를 되돌려 사각형 안인지 판단
+    const dx = pt.x - p.x, dy = pt.y - p.y;
+    const cos = Math.cos(-p.rot), sin = Math.sin(-p.rot);
+    const lx = dx * cos - dy * sin;
+    const ly = dx * sin + dy * cos;
+    if (Math.abs(lx) <= SLIP_W * 0.6 && Math.abs(ly) <= SLIP_H * 0.7) return s;
+  }
+  return null;
+}
+
+canvas.addEventListener('click', e => {
+  if (mode !== 'idle') return;
+  const s = slipAt(toNormalized(e));
+  if (s) pickSlip(s);
+  else if (slips.length) statusEl.textContent = '종이 제비를 정확히 콕 눌러 주세요 👆';
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (mode !== 'idle') return;
+  const s = slipAt(toNormalized(e));
+  if (s !== hoverSlip) {
+    hoverSlip = s;
+    canvas.style.cursor = s ? 'pointer' : 'default';
+    draw();
+  }
+});
+canvas.addEventListener('mouseleave', () => {
+  if (hoverSlip) { hoverSlip = null; draw(); }
+});
+
+/* =========================================================
+   제비 내용 목록 관리
+   ========================================================= */
+function totalCount() { return entries.reduce((sum, e) => sum + e.count, 0); }
+
+function renderList() {
+  itemList.innerHTML = '';
+  entries.forEach((entry, i) => {
+    const li = document.createElement('li');
+
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.textContent = entry.name;
+
+    // 장수 조절 (− 숫자 +)
+    const count = document.createElement('div');
+    count.className = 'count';
+    const minus = document.createElement('button');
+    minus.className = 'mini';
+    minus.textContent = '−';
+    minus.setAttribute('aria-label', `${entry.name} 한 장 빼기`);
+    minus.addEventListener('click', () => changeCount(i, -1));
+    const num = document.createElement('span');
+    num.textContent = `${entry.count}장`;
+    const plus = document.createElement('button');
+    plus.className = 'mini';
+    plus.textContent = '+';
+    plus.setAttribute('aria-label', `${entry.name} 한 장 더하기`);
+    plus.addEventListener('click', () => changeCount(i, 1));
+    count.append(minus, num, plus);
+
+    const del = document.createElement('button');
+    del.className = 'mini del';
+    del.textContent = '✕';
+    del.setAttribute('aria-label', `${entry.name} 삭제`);
+    del.addEventListener('click', () => {
+      if (mode !== 'idle') return;
+      entries.splice(i, 1);
+      afterEntriesChanged();
+    });
+
+    li.append(name, count, del);
+    itemList.appendChild(li);
+  });
+  totalText.textContent = `모두 ${totalCount()}장 (최대 ${MAX_SLIPS}장)`;
+}
+
+// 장수 바꾸기
+function changeCount(i, diff) {
+  if (mode !== 'idle') return;
+  const next = entries[i].count + diff;
+  if (next < 1) return;
+  if (diff > 0 && totalCount() >= MAX_SLIPS) {
+    statusEl.textContent = `제비는 최대 ${MAX_SLIPS}장까지 넣을 수 있어요 🙏`;
+    return;
+  }
+  entries[i].count = next;
+  afterEntriesChanged();
+}
+
+// 새 제비 내용 추가 (같은 내용이 있으면 장수만 더함)
+function addEntry() {
+  if (mode !== 'idle') return;
+  const name = newItemInput.value.trim();
+  let count = parseInt(newCountInput.value, 10) || 1;
+  if (!name) { newItemInput.focus(); return; }
+  count = Math.max(1, Math.min(count, MAX_SLIPS - totalCount()));
+  if (totalCount() >= MAX_SLIPS) {
+    statusEl.textContent = `제비는 최대 ${MAX_SLIPS}장까지 넣을 수 있어요 🙏`;
+    return;
+  }
+  const same = entries.find(e => e.name === name);
+  if (same) same.count += count;
+  else entries.push({ name, count });
+  newItemInput.value = '';
+  newCountInput.value = 1;
+  newItemInput.focus();
+  afterEntriesChanged();
+}
+
+// 내용이 바뀌면 통을 새로 채움
+function afterEntriesChanged() {
+  renderList();
+  fillJar();
+  draw();
+  setButtons();
+  statusEl.textContent = '제비를 새로 만들어 통에 넣었어요 📝';
+}
+
+/* =========================================================
+   버튼 상태와 남은 장수
+   ========================================================= */
+function setButtons() {
+  const idle = mode === 'idle';
+  shuffleBtn.disabled = !idle || slips.length < 2;
+  randomBtn.disabled = !idle || slips.length === 0;
+  refillBtn.disabled = !idle;
+  addBtn.disabled = !idle;
+}
+
+function updateRemain() { remainEl.textContent = slips.length; }
+
+/* =========================================================
+   뽑기 기록
+   ========================================================= */
+function addHistory(result) {
+  const li = document.createElement('li');
+  const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+  li.textContent = `${time} · ${result}`;
+  historyEl.prepend(li);
+  historyEmpty.style.display = 'none';
+}
+
+/* =========================================================
+   효과음 (Web Audio API로 직접 생성)
+   ========================================================= */
+let audioCtx = null;
+
+function initAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch (e) { audioCtx = null; }
+  }
+}
+
+// 짧은 소리 하나 재생
+function beep(freq, duration, type = 'triangle', volume = 0.08, delay = 0) {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime + delay;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t);
+  gain.gain.setValueAtTime(volume, t);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + duration);
+}
+
+// 종이 스치는 소리
+function rustle() { beep(900 + Math.random() * 600, 0.035, 'square', 0.02); }
+// 제비 집어 올리는 소리
+function pop() { beep(660, 0.08, 'sine', 0.1); beep(990, 0.1, 'sine', 0.08, 0.06); }
+// 결과 발표 팡파레
+function fanfare() { [523, 659, 784, 1047].forEach((f, i) => beep(f, 0.25, 'triangle', 0.09, i * 0.11)); }
+
+/* =========================================================
+   꽃가루 효과
+   ========================================================= */
+const confettiCanvas = document.getElementById('confetti');
+const cctx = confettiCanvas.getContext('2d');
+let pieces = [];
+
+function launchConfetti() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+  const shapes = ['♥', '★', '●'];
+  pieces = Array.from({ length: 120 }, () => ({
+    x: window.innerWidth / 2 + (Math.random() - 0.5) * 120,
+    y: window.innerHeight / 2,
+    vx: (Math.random() - 0.5) * 14,
+    vy: Math.random() * -14 - 4,
+    size: Math.random() * 12 + 10,
+    rot: Math.random() * Math.PI,
+    vr: (Math.random() - 0.5) * 0.3,
+    color: PAPER_COLORS[Math.floor(Math.random() * PAPER_COLORS.length)],
+    shape: shapes[Math.floor(Math.random() * shapes.length)],
+    life: 0
+  }));
+  requestAnimationFrame(updateConfetti);
+}
+
+function updateConfetti() {
+  cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  pieces.forEach(p => {
+    p.vy += 0.35;      // 중력
+    p.vx *= 0.99;      // 공기 저항
+    p.x += p.vx;
+    p.y += p.vy;
+    p.rot += p.vr;
+    p.life++;
+    cctx.save();
+    cctx.translate(p.x, p.y);
+    cctx.rotate(p.rot);
+    cctx.globalAlpha = Math.max(0, 1 - p.life / 160);
+    cctx.fillStyle = p.color;
+    cctx.font = `${p.size}px sans-serif`;
+    cctx.textAlign = 'center';
+    cctx.fillText(p.shape, 0, 0);
+    cctx.restore();
+  });
+  pieces = pieces.filter(p => p.life < 160 && p.y < confettiCanvas.height + 40);
+  if (pieces.length) requestAnimationFrame(updateConfetti);
+  else cctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+}
+
+/* =========================================================
+   배경 하트 만들기
+   ========================================================= */
+function makeHearts() {
+  const symbols = ['💗', '💕', '🌸', '✨', '🎀'];
+  for (let i = 0; i < 12; i++) {
+    const h = document.createElement('span');
+    h.className = 'float-heart';
+    h.textContent = symbols[i % symbols.length];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.animationDuration = 10 + Math.random() * 12 + 's';
+    h.style.animationDelay = -Math.random() * 20 + 's';
+    h.style.fontSize = 16 + Math.random() * 16 + 'px';
+    document.body.appendChild(h);
+  }
+}
+
+/* =========================================================
+   이벤트 연결
+   ========================================================= */
+shuffleBtn.addEventListener('click', () => shuffle());
+// 아무거나 뽑기: 살짝 섞은 뒤 무작위로 한 장 꺼냄
+randomBtn.addEventListener('click', () => {
+  if (slips.length >= 2) shuffle(true);
+  else pickSlip(slips[0]);
+});
+refillBtn.addEventListener('click', () => {
+  if (mode !== 'idle') return;
+  fillJar();
+  draw();
+  setButtons();
+  statusEl.textContent = '제비를 전부 다시 통에 넣었어요 📥';
+});
+addBtn.addEventListener('click', addEntry);
+newItemInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.isComposing) addEntry(); // 한글 입력 조합 중 엔터 방지
+});
+newCountInput.addEventListener('keydown', e => { if (e.key === 'Enter') addEntry(); });
+
+document.getElementById('closeBtn').addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+window.addEventListener('resize', resizeCanvas);
+
+/* =========================================================
+   시작
+   ========================================================= */
+makeHearts();
+renderList();
+fillJar();
+setButtons();
+resizeCanvas();
+// 글꼴이 늦게 로드되면 다시 그림
+if (document.fonts) document.fonts.ready.then(draw);
+</script>
+</body>
+</html>
+
+</body></html>
