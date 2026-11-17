@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>점심메뉴 룰렛</title>
+<!-- 둥글고 경쾌한 한글 글꼴 (인터넷이 없으면 맑은 고딕으로 대체) -->
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  /* ===== 기본 색상 ===== */
+  :root {
+    --ink: #2b2d42;
+    --accent: #ff4d8d;
+    --accent-dark: #e03574;
+    --yellow: #ffc83d;
+    --card: rgba(255, 255, 255, 0.85);
+    --muted: #6b6f86;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    font-family: 'Jua', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    color: var(--ink);
+    background: linear-gradient(135deg, #fff3c4 0%, #ffe0ec 45%, #d6f0ff 100%);
+    min-height: 100vh;
+    font-size: 20px;
+  }
+
+  /* ===== 상단 제목 영역 ===== */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    padding: 18px 32px 10px;
+  }
+  h1 {
+    margin: 0; font-weight: 400;
+    font-size: clamp(2rem, 3.6vw, 3.4rem);
+    letter-spacing: 1px;
+  }
+  h1 .hl { color: var(--accent); }
+
+  /* ===== 공통 버튼 ===== */
+  button {
+    font-family: inherit; cursor: pointer; border: none;
+    border-radius: 14px; transition: transform .1s, box-shadow .2s, background .2s;
+  }
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-soft {
+    background: #fff; color: var(--ink);
+    padding: 10px 18px; font-size: 1.05rem;
+    box-shadow: 0 3px 0 rgba(0,0,0,.08), 0 6px 14px rgba(0,0,0,.06);
+  }
+  .btn-soft:hover { background: #fff7d6; }
+  .btn-full { font-size: 1.25rem; padding: 12px 22px; }
+
+  /* ===== 본문 2단 배치 ===== */
+  main {
+    display: grid;
+    grid-template-columns: minmax(300px, 400px) 1fr;
+    gap: 28px;
+    padding: 6px 32px 32px;
+    align-items: start;
+  }
+  .panel {
+    background: var(--card);
+    border-radius: 26px; padding: 22px;
+    box-shadow: 0 12px 32px rgba(0,0,0,.08);
+    backdrop-filter: blur(6px);
+  }
+  .panel h2 { margin: 0 0 6px; font-weight: 400; font-size: 1.6rem; }
+  .hint { color: var(--muted); font-size: 1rem; margin: 0 0 10px; }
+
+  textarea {
+    width: 100%; height: 300px; resize: vertical;
+    font-family: inherit; font-size: 1.3rem; line-height: 1.55;
+    padding: 12px 14px; border-radius: 16px;
+    border: 3px solid #ffd6e5; background: #fff; color: var(--ink);
+    outline: none;
+  }
+  textarea:focus { border-color: var(--accent); }
+  textarea:disabled { background: #f6f6f6; }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .count { margin-left: auto; font-size: 1.1rem; color: var(--muted); }
+  .count b { color: var(--accent); font-weight: 400; font-size: 1.3rem; }
+
+  /* 체크박스 */
+  .check {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1.3rem; margin-top: 16px; cursor: pointer; user-select: none;
+  }
+  .check input { width: 26px; height: 26px; accent-color: var(--accent); cursor: pointer; }
+
+  /* 뽑힌 기록 */
+  .history-head { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; }
+  .history-head h3 { margin: 0; font-weight: 400; font-size: 1.35rem; }
+  .history {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+    min-height: 44px; max-height: 180px; overflow-y: auto;
+  }
+  .chip {
+    background: #fff; border-radius: 999px; padding: 6px 14px;
+    font-size: 1.1rem; box-shadow: 0 2px 6px rgba(0,0,0,.08);
+  }
+  .chip i { font-style: normal; color: var(--accent); margin-right: 4px; }
+  .empty { color: var(--muted); font-size: 1rem; }
+
+  /* ===== 룰렛 영역 ===== */
+  .stage { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .wheel-wrap {
+    position: relative;
+    width: min(100%, calc(100vh - 250px));
+    min-width: 300px;
+    aspect-ratio: 1 / 1;
+  }
+  #wheel { width: 100%; height: 100%; display: block; }
+  .status { font-size: 1.4rem; color: var(--muted); }
+  .status b { color: var(--ink); font-weight: 400; }
+
+  /* 메인 추첨 버튼 */
+  #spinBtn {
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    padding: 18px 56px; border-radius: 999px;
+    color: #fff;
+    background: linear-gradient(180deg, #ff6aa2, var(--accent));
+    box-shadow: 0 8px 0 var(--accent-dark), 0 16px 30px rgba(255, 77, 141, .35);
+  }
+  #spinBtn:hover:not(:disabled) { filter: brightness(1.06); }
+  #spinBtn:active:not(:disabled) { transform: translateY(6px); box-shadow: 0 2px 0 var(--accent-dark), 0 8px 16px rgba(255,77,141,.3); }
+  .key-hint { font-size: 1rem; color: var(--muted); margin-top: -6px; }
+
+  /* ===== 결과 팝업 ===== */
+  .overlay {
+    position: fixed; inset: 0; z-index: 50;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(43, 45, 66, .45);
+  }
+  .overlay.show { display: flex; }
+  .result-card {
+    background: #fff; border-radius: 36px;
+    padding: 40px 60px 34px; text-align: center;
+    max-width: 92vw;
+    box-shadow: 0 30px 80px rgba(0,0,0,.25);
+    border: 8px solid var(--yellow);
+    animation: pop .55s cubic-bezier(.2, 1.6, .4, 1);
+  }
+  .result-title { font-size: clamp(1.6rem, 3vw, 2.4rem); color: var(--muted); }
+  .result-name {
+    font-size: clamp(3.2rem, 11vw, 9rem);
+    line-height: 1.15; margin: 14px 0 22px;
+    color: var(--accent);
+    word-break: keep-all;
+    text-shadow: 4px 4px 0 #ffe08a;
+  }
+  .result-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .result-actions button { font-size: 1.5rem; padding: 12px 34px; border-radius: 999px; }
+  .btn-ok { background: var(--accent); color: #fff; }
+  .btn-again { background: #fff3c4; color: var(--ink); }
+  @keyframes pop {
+    from { transform: scale(.3) rotate(-8deg); opacity: 0; }
+    to   { transform: scale(1) rotate(0); opacity: 1; }
+  }
+
+  /* 꽃가루용 캔버스 (화면 전체를 덮지만 클릭은 통과) */
+  #confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 60; }
+
+  /* 안내 메시지 */
+  .toast {
+    position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(30px);
+    background: var(--ink); color: #fff; padding: 14px 28px; border-radius: 999px;
+    font-size: 1.3rem; opacity: 0; transition: .3s; z-index: 70; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ===== 좁은 화면(노트북 창 축소·태블릿)에서는 위아래로 배치 ===== */
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; padding: 6px 16px 24px; }
+    header { padding: 14px 16px 6px; }
+    .wheel-wrap { width: min(100%, 80vh); min-width: 0; }
+    .stage { order: -1; }
+    textarea { height: 220px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍱 오늘 <span class="hl">점심</span> 뭐 먹지?</h1>
+  <button id="fsBtn" class="btn-soft btn-full">⛶ 전체 화면</button>
+</header>
+
+<main>
+  <!-- 왼쪽: 메뉴 입력 및 설정 -->
+  <section class="panel">
+    <h2>📝 메뉴 목록</h2>
+    <p class="hint">한 줄에 하나씩 입력하세요. 엑셀에서 복사해 붙여넣어도 됩니다.</p>
+    <textarea id="menuInput" spellcheck="false"></textarea>
+    <div class="row">
+      <button id="sampleBtn" class="btn-soft">예시 메뉴</button>
+      <button id="clearBtn" class="btn-soft">모두 지우기</button>
+      <span class="count">메뉴 <b id="menuCount">0</b>개</span>
+    </div>
+
+    <label class="check">
+      <input type="checkbox" id="excludeChk">
+      이미 뽑힌 메뉴 제외
+    </label>
+    <label class="check">
+      <input type="checkbox" id="soundChk" checked>
+      효과음 켜기
+    </label>
+
+    <div class="history-head">
+      <h3>🏆 뽑힌 메뉴</h3>
+      <button id="resetHistBtn" class="btn-soft">기록 초기화</button>
+    </div>
+    <div id="history" class="history"><span class="empty">아직 뽑힌 메뉴가 없어요.</span></div>
+  </section>
+
+  <!-- 오른쪽: 룰렛 -->
+  <section class="stage">
+    <div class="wheel-wrap" id="wheelWrap">
+      <canvas id="wheel"></canvas>
+    </div>
+    <div class="status" id="status"></div>
+    <button id="spinBtn">🎯 점심메뉴뽑기</button>
+    <div class="key-hint">스페이스바를 눌러도 뽑을 수 있어요</div>
+  </section>
+</main>
+
+<!-- 결과 팝업 -->
+<div class="overlay" id="overlay">
+  <div class="result-card" id="resultCard">
+    <div class="result-title">🎉 오늘의 점심 메뉴는 🎉</div>
+    <div class="result-name" id="resultName"></div>
+    <div class="result-actions">
+      <button class="btn-ok" id="okBtn">확인</button>
+      <button class="btn-again" id="againBtn">한 번 더 뽑기</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   1. 기본 데이터와 상태
+   ========================================================= */
+
+// 처음 열었을 때 들어갈 예시 메뉴 12개
+const SAMPLE_MENUS = [
+  '김치찌개', '된장찌개', '제육볶음', '돈까스',
+  '짜장면', '짬뽕', '비빔밥', '칼국수',
+  '냉면', '순대국밥', '초밥', '햄버거'
+];
+
+// 룰렛 칸 색상 (밝고 경쾌한 색 위주)
+const COLORS = [
+  '#FF6B6B', '#FFA94D', '#FFD43B', '#8CE99A',
+  '#38D9A9', '#66D9E8', '#74C0FC', '#91A7FF',
+  '#B197FC', '#F783AC', '#FFC078', '#C0EB75'
+];
+
+const TAU = Math.PI * 2;
+const POINTER_ANGLE = -Math.PI / 2;   // 바늘 위치: 12시 방향
+
+let allMenus = [];        // 입력창에서 읽은 전체 메뉴
+let wheelMenus = [];      // 현재 룰렛에 그려지는 메뉴
+let drawnMenus = [];      // 지금까지 뽑힌 메뉴 (순서대로)
+let rotation = 0;         // 룰렛 회전 각도(라디안)
+let spinning = false;     // 돌고 있는 중인지
+let winnerIndex = -1;     // 마지막 당첨 칸 (강조 표시용)
+let lastTickIndex = -1;   // 효과음용: 바늘 아래 칸 번호
+
+/* =========================================================
+   2. 화면 요소
+   ========================================================= */
+const $ = (id) => document.getElementById(id);
+const menuInput = $('menuInput');
+const excludeChk = $('excludeChk');
+const soundChk = $('soundChk');
+const spinBtn = $('spinBtn');
+const canvas = $('wheel');
+const ctx = canvas.getContext('2d');
+const wheelWrap = $('wheelWrap');
+
+/* =========================================================
+   3. 메뉴 입력 처리
+   ========================================================= */
+
+// 입력 문자열을 메뉴 배열로 변환
+// - 줄바꿈(\r\n, \n)과 탭(엑셀 여러 칸 복사) 모두 구분자로 인식
+// - 앞뒤 공백·따옴표 제거, 빈 줄 제거, 중복 제거
+function parseMenus(text) {
+  const items = text
+    .split(/\r\n|\r|\n|\t/)
+    .map(s => s.trim().replace(/^"(.*)"$/, '$1').trim())
+    .filter(s => s.length > 0);
+  return [...new Set(items)];
+}
+
+// 현재 룰렛에 올라갈 메뉴 (제외 옵션 반영)
+function getActiveMenus() {
+  if (excludeChk.checked) {
+    return allMenus.filter(m => !drawnMenus.includes(m));
+  }
+  return allMenus.slice();
+}
+
+// 입력이 바뀌었을 때 전체 갱신
+function refreshMenus() {
+  allMenus = parseMenus(menuInput.value);
+  $('menuCount').textContent = allMenus.length;
+  wheelMenus = getActiveMenus();
+  winnerIndex = -1;
+  updateStatus();
+  drawWheel();
+}
+
+function updateStatus() {
+  const status = $('status');
+  if (allMenus.length === 0) {
+    status.innerHTML = '왼쪽에 메뉴를 입력해 주세요';
+  } else if (excludeChk.checked) {
+    status.innerHTML = `남은 메뉴 <b>${wheelMenus.length}</b>개 / 전체 <b>${allMenus.length}</b>개`;
+  } else {
+    status.innerHTML = `룰렛에 <b>${wheelMenus.length}</b>개 메뉴`;
+  }
+}
+
+/* =========================================================
+   4. 룰렛 그리기 (canvas)
+   ========================================================= */
+
+// 캔버스 크기를 화면 크기·해상도에 맞춤 (선명하게)
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const size = wheelWrap.clientWidth;
+  canvas.width = Math.round(size * dpr);
+  canvas.height = Math.round(size * dpr);
+  drawWheel();
+}
+
+// 칸 색상: 마지막 칸이 첫 칸과 같은 색이 되지 않도록 조정
+function colorFor(i, n) {
+  let c = COLORS[i % COLORS.length];
+  if (i === n - 1 && n > 1 && c === COLORS[0]) c = COLORS[5];
+  return c;
+}
+
+// 글자가 칸에 들어가도록 길면 말줄임(…) 처리
+function fitText(text, maxWidth) {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let t = text;
+  while (t.length > 1 && ctx.measureText(t + '…').width > maxWidth) {
+    t = t.slice(0, -1);
+  }
+  return t + '…';
+}
+
+function drawWheel() {
+  const W = canvas.width, H = canvas.height;
+  if (!W) return;
+  const s = W / 600;                 // 화면 크기 비율 (600px 기준)
+  const cx = W / 2, cy = H / 2;
+  const R = W / 2 - 34 * s;          // 룰렛 반지름
+  const items = wheelMenus;
+  const n = items.length;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // 바깥 테두리 (그림자 포함)
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,.18)';
+  ctx.shadowBlur = 24 * s;
+  ctx.shadowOffsetY = 8 * s;
+  ctx.beginPath();
+  ctx.arc(cx, cy, R + 20 * s, 0, TAU);
+  ctx.fillStyle = '#ff4d8d';
+  ctx.fill();
+  ctx.restore();
+
+  // 메뉴가 없을 때
+  if (n === 0) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, TAU);
+    ctx.fillStyle = '#f1f3f5';
+    ctx.fill();
+    ctx.fillStyle = '#868e96';
+    ctx.font = `${30 * s}px Jua, "Malgun Gothic", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(allMenus.length ? '모든 메뉴를 뽑았어요!' : '메뉴를 입력해 주세요', cx, cy);
+    drawPointer(cx, cy, R, s);
+    return;
+  }
+
+  const seg = TAU / n;
+
+  // 글자 크기: 칸 수가 많을수록 작게
+  const arcAtText = R * 0.72 * seg;                      // 글자 위치에서의 칸 높이
+  const fontSize = Math.max(12 * s, Math.min(40 * s, arcAtText * 0.55));
+  ctx.font = `${fontSize}px Jua, "Malgun Gothic", sans-serif`;
+
+  for (let i = 0; i < n; i++) {
+    const start = rotation + i * seg;
+    const end = start + seg;
+
+    // 칸 채우기
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, start, end);
+    ctx.closePath();
+    ctx.fillStyle = colorFor(i, n);
+    ctx.fill();
+    ctx.lineWidth = 3 * s;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+
+    // 메뉴 이름 (칸 가운데 방향으로 회전해서 쓰기)
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + seg / 2);
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    const label = fitText(items[i], R * 0.68);
+    ctx.lineWidth = 5 * s;
+    ctx.strokeStyle = 'rgba(255,255,255,.75)';
+    ctx.strokeText(label, R - 22 * s, 0);
+    ctx.fillStyle = '#2b2d42';
+    ctx.fillText(label, R - 22 * s, 0);
+    ctx.restore();
+  }
+
+  // 당첨 칸 강조 테두리
+  if (!spinning && winnerIndex >= 0 && winnerIndex < n) {
+    const start = rotation + winnerIndex * seg;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, start, start + seg);
+    ctx.closePath();
+    ctx.lineWidth = 10 * s;
+    ctx.strokeStyle = '#ffc83d';
+    ctx.stroke();
+  }
+
+  // 테두리 장식 전구
+  const bulbs = 24;
+  for (let i = 0; i < bulbs; i++) {
+    const a = (i / bulbs) * TAU;
+    ctx.beginPath();
+    ctx.arc(cx + Math.cos(a) * (R + 10 * s), cy + Math.sin(a) * (R + 10 * s), 5 * s, 0, TAU);
+    ctx.fillStyle = i % 2 ? '#fff3c4' : '#ffffff';
+    ctx.fill();
+  }
+
+  // 가운데 원
+  const hubR = R * 0.17;
+  const g = ctx.createRadialGradient(cx - hubR * .3, cy - hubR * .3, hubR * .1, cx, cy, hubR);
+  g.addColorStop(0, '#ffffff');
+  g.addColorStop(1, '#ffe08a');
+  ctx.beginPath();
+  ctx.arc(cx, cy, hubR, 0, TAU);
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.lineWidth = 6 * s;
+  ctx.strokeStyle = '#ff4d8d';
+  ctx.stroke();
+  ctx.fillStyle = '#ff4d8d';
+  ctx.font = `${hubR * 0.62}px Jua, "Malgun Gothic", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('점심', cx, cy + 2 * s);
+
+  drawPointer(cx, cy, R, s);
+}
+
+// 12시 방향 바늘 (아래를 가리키는 삼각형)
+function drawPointer(cx, cy, R, s) {
+  const top = cy - R - 30 * s;
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,.25)';
+  ctx.shadowBlur = 8 * s;
+  ctx.shadowOffsetY = 3 * s;
+  ctx.beginPath();
+  ctx.moveTo(cx - 24 * s, top);
+  ctx.lineTo(cx + 24 * s, top);
+  ctx.lineTo(cx, top + 56 * s);
+  ctx.closePath();
+  ctx.fillStyle = '#2b2d42';
+  ctx.fill();
+  ctx.restore();
+  ctx.beginPath();
+  ctx.arc(cx, top + 4 * s, 9 * s, 0, TAU);
+  ctx.fillStyle = '#ffc83d';
+  ctx.fill();
+}
+
+/* =========================================================
+   5. 회전 애니메이션
+   ========================================================= */
+
+// 0 ~ 2π 범위로 각도 정리
+const normAngle = (a) => ((a % TAU) + TAU) % TAU;
+
+// 공정한 난수 (브라우저 암호화 난수 사용)
+function randomFloat() {
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  return buf[0] / 4294967296;
+}
+
+// 감속 곡선: 처음엔 빠르게, 끝으로 갈수록 천천히
+const easeOut = (t) => 1 - Math.pow(1 - t, 4);
+
+// 바늘 아래에 있는 칸 번호
+function indexUnderPointer() {
+  const n = wheelMenus.length;
+  if (!n) return -1;
+  const seg = TAU / n;
+  return Math.floor(normAngle(POINTER_ANGLE - rotation) / seg) % n;
+}
+
+function spin() {
+  if (spinning) return;
+  wheelMenus = getActiveMenus();
+
+  if (wheelMenus.length === 0) {
+    showToast(allMenus.length
+      ? '모든 메뉴를 다 뽑았어요! [기록 초기화]를 눌러 주세요.'
+      : '메뉴를 먼저 입력해 주세요.');
+    drawWheel();
+    return;
+  }
+
+  initAudio();
+  spinning = true;
+  winnerIndex = -1;
+  setControlsDisabled(true);
+
+  const n = wheelMenus.length;
+  const seg = TAU / n;
+
+  // 당첨 칸과 칸 안의 멈출 위치를 미리 정함 (칸 경계에 걸리지 않도록 15~85%)
+  const target = Math.floor(randomFloat() * n);
+  const offset = 0.15 + randomFloat() * 0.7;
+  const targetRotation = POINTER_ANGLE - (target + offset) * seg;
+
+  const extraTurns = 6 + Math.floor(randomFloat() * 3);       // 6~8바퀴 추가
+  const startRot = rotation;
+  const endRot = rotation + extraTurns * TAU + normAngle(targetRotation - rotation);
+  const duration = 6000 + randomFloat() * 1500;               // 6~7.5초
+  const t0 = performance.now();
+  lastTickIndex = indexUnderPointer();
+
+  function frame(now) {
+    const t = Math.min((now - t0) / duration, 1);
+    rotation = startRot + (endRot - startRot) * easeOut(t);
+
+    // 칸이 바늘을 지날 때마다 '틱' 소리
+    const idx = indexUnderPointer();
+    if (idx !== lastTickIndex) { playTick(); lastTickIndex = idx; }
+
+    drawWheel();
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      finishSpin();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function finishSpin() {
+  spinning = false;
+  rotation = normAngle(rotation);
+  winnerIndex = indexUnderPointer();
+  const winner = wheelMenus[winnerIndex];
+  drawWheel();
+
+  drawnMenus.push(winner);
+  renderHistory();
+  playFanfare();
+  launchConfetti();
+  showResult(winner);
+}
+
+function setControlsDisabled(disabled) {
+  spinBtn.disabled = disabled;
+  menuInput.disabled = disabled;
+  excludeChk.disabled = disabled;
+  ['sampleBtn', 'clearBtn', 'resetHistBtn'].forEach(id => $(id).disabled = disabled);
+}
+
+/* =========================================================
+   6. 결과 표시와 기록
+   ========================================================= */
+
+function showResult(name) {
+  $('resultName').textContent = name;
+  // 애니메이션을 다시 실행하기 위해 카드 재삽입
+  const card = $('resultCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = '';
+  $('overlay').classList.add('show');
+}
+
+function closeResult() {
+  $('overlay').classList.remove('show');
+  setControlsDisabled(false);
+  // 제외 옵션이 켜져 있으면 이때 룰렛에서 당첨 메뉴를 뺌
+  if (excludeChk.checked) {
+    wheelMenus = getActiveMenus();
+    winnerIndex = -1;
+  }
+  updateStatus();
+  drawWheel();
+}
+
+function renderHistory() {
+  const box = $('history');
+  if (drawnMenus.length === 0) {
+    box.innerHTML = '<span class="empty">아직 뽑힌 메뉴가 없어요.</span>';
+    return;
+  }
+  box.innerHTML = '';
+  drawnMenus.forEach((m, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'chip';
+    chip.innerHTML = `<i>${i + 1}</i>`;
+    chip.appendChild(document.createTextNode(m));
+    box.appendChild(chip);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* =========================================================
+   7. 꽃가루 효과
+   ========================================================= */
+
+const fx = $('confetti');
+const fxCtx = fx.getContext('2d');
+let particles = [];
+let confettiRunning = false;
+let rainUntil = 0;
+const CONFETTI_COLORS = ['#ff4d8d', '#ffc83d', '#4dabf7', '#51cf66', '#b197fc', '#ff922b', '#ffffff'];
+
+function resizeFx() {
+  const dpr = window.devicePixelRatio || 1;
+  fx.width = innerWidth * dpr;
+  fx.height = innerHeight * dpr;
+}
+
+function makeParticle(x, y, vx, vy) {
+  const dpr = window.devicePixelRatio || 1;
+  return {
+    x, y, vx, vy,
+    w: (8 + Math.random() * 10) * dpr,
+    h: (5 + Math.random() * 8) * dpr,
+    color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+    rot: Math.random() * TAU,
+    vr: (Math.random() - 0.5) * 0.3,
+    round: Math.random() < 0.3,       // 일부는 동그란 꽃가루
+    wobble: Math.random() * TAU
+  };
+}
+
+function launchConfetti() {
+  const dpr = window.devicePixelRatio || 1;
+  const W = fx.width, H = fx.height;
+  // 화면 양쪽 아래에서 위로 터지는 꽃가루
+  for (let i = 0; i < 120; i++) {
+    const fromLeft = i % 2 === 0;
+    const angle = fromLeft ? (-Math.PI / 3 + (Math.random() - .5) * .6) : (-2 * Math.PI / 3 + (Math.random() - .5) * .6);
+    const speed = (14 + Math.random() * 12) * dpr;
+    particles.push(makeParticle(fromLeft ? 0 : W, H * 0.85, Math.cos(angle) * speed, Math.sin(angle) * speed));
+  }
+  // 이후 1.8초 동안 위에서 비처럼 내림
+  rainUntil = performance.now() + 1800;
+  if (!confettiRunning) { confettiRunning = true; requestAnimationFrame(confettiFrame); }
+}
+
+function confettiFrame(now) {
+  const dpr = window.devicePixelRatio || 1;
+  const W = fx.width, H = fx.height;
+
+  if (now < rainUntil) {
+    for (let i = 0; i < 6; i++) {
+      particles.push(makeParticle(Math.random() * W, -20 * dpr, (Math.random() - .5) * 3 * dpr, (2 + Math.random() * 3) * dpr));
+    }
+  }
+
+  fxCtx.clearRect(0, 0, W, H);
+  particles.forEach(p => {
+    p.vy += 0.35 * dpr;             // 중력
+    p.vx *= 0.985;                  // 공기 저항
+    p.vy = Math.min(p.vy, 7 * dpr); // 너무 빨리 떨어지지 않게
+    p.wobble += 0.1;
+    p.x += p.vx + Math.sin(p.wobble) * 0.8 * dpr;
+    p.y += p.vy;
+    p.rot += p.vr;
+
+    fxCtx.save();
+    fxCtx.translate(p.x, p.y);
+    fxCtx.rotate(p.rot);
+    fxCtx.fillStyle = p.color;
+    if (p.round) {
+      fxCtx.beginPath();
+      fxCtx.arc(0, 0, p.h / 2, 0, TAU);
+      fxCtx.fill();
+    } else {
+      // 뒤집히는 느낌을 주기 위해 세로 길이를 주기적으로 변화
+      fxCtx.fillRect(-p.w / 2, -p.h / 2 * Math.cos(p.wobble), p.w, p.h * Math.cos(p.wobble));
+    }
+    fxCtx.restore();
+  });
+
+  // 화면 밖으로 나간 꽃가루 제거
+  particles = particles.filter(p => p.y < H + 40 * dpr && p.x > -100 * dpr && p.x < W + 100 * dpr);
+
+  if (particles.length > 0 || now < rainUntil) {
+    requestAnimationFrame(confettiFrame);
+  } else {
+    confettiRunning = false;
+    fxCtx.clearRect(0, 0, W, H);
+  }
+}
+
+/* =========================================================
+   8. 효과음 (별도 파일 없이 브라우저에서 합성)
+   ========================================================= */
+
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { audioCtx = null; }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function beep(freq, start, dur, type = 'square', vol = 0.08) {
+  if (!audioCtx || !soundChk.checked) return;
+  const t = audioCtx.currentTime + start;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol, t);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t);
+  osc.stop(t + dur + 0.02);
+}
+
+const playTick = () => beep(1400, 0, 0.03, 'square', 0.04);
+
+function playFanfare() {
+  // 도-미-솔-도 상승음
+  [523, 659, 784, 1047].forEach((f, i) => beep(f, i * 0.12, i === 3 ? 0.5 : 0.15, 'triangle', 0.15));
+}
+
+/* =========================================================
+   9. 전체 화면
+   ========================================================= */
+
+function toggleFullscreen() {
+  const doc = document;
+  const isFs = doc.fullscreenElement || doc.webkitFullscreenElement;
+  if (!isFs) {
+    const el = doc.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (req) {
+      Promise.resolve(req.call(el)).catch(() => showToast('이 화면에서는 전체 화면을 쓸 수 없어요. F11 키를 눌러 보세요.'));
+    } else {
+      showToast('전체 화면을 지원하지 않는 브라우저예요. F11 키를 눌러 보세요.');
+    }
+  } else {
+    (doc.exitFullscreen || doc.webkitExitFullscreen).call(doc);
+  }
+}
+
+function updateFsButton() {
+  const isFs = document.fullscreenElement || document.webkitFullscreenElement;
+  $('fsBtn').textContent = isFs ? '✕ 전체 화면 끝내기' : '⛶ 전체 화면';
+  // 전체 화면 전환 후 크기 다시 계산
+  setTimeout(() => { resizeCanvas(); resizeFx(); }, 120);
+}
+
+/* =========================================================
+   10. 이벤트 연결
+   ========================================================= */
+
+let inputTimer;
+menuInput.addEventListener('input', () => {
+  clearTimeout(inputTimer);
+  inputTimer = setTimeout(refreshMenus, 150);   // 입력이 잠시 멈추면 갱신
+});
+
+$('sampleBtn').addEventListener('click', () => {
+  menuInput.value = SAMPLE_MENUS.join('\n');
+  refreshMenus();
+});
+
+$('clearBtn').addEventListener('click', () => {
+  menuInput.value = '';
+  refreshMenus();
+  menuInput.focus();
+});
+
+excludeChk.addEventListener('change', refreshMenus);
+
+$('resetHistBtn').addEventListener('click', () => {
+  drawnMenus = [];
+  renderHistory();
+  refreshMenus();
+  showToast('뽑힌 기록을 초기화했어요.');
+});
+
+spinBtn.addEventListener('click', spin);
+
+$('okBtn').addEventListener('click', closeResult);
+$('againBtn').addEventListener('click', () => { closeResult(); setTimeout(spin, 150); });
+$('overlay').addEventListener('click', (e) => { if (e.target.id === 'overlay') closeResult(); });
+
+$('fsBtn').addEventListener('click', toggleFullscreen);
+document.addEventListener('fullscreenchange', updateFsButton);
+document.addEventListener('webkitfullscreenchange', updateFsButton);
+
+// 키보드: 스페이스바/엔터로 뽑기, 결과 창은 엔터·ESC로 닫기
+document.addEventListener('keydown', (e) => {
+  const overlayOpen = $('overlay').classList.contains('show');
+  if (overlayOpen) {
+    if (e.key === 'Enter' || e.key === 'Escape' || e.key === ' ') {
+      e.preventDefault();
+      closeResult();
+    }
+    return;
+  }
+  // 입력창이나 버튼에 포커스가 있을 때는 스페이스바 기본 동작 유지
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (e.key === ' ' && tag !== 'TEXTAREA' && tag !== 'BUTTON' && tag !== 'INPUT') {
+    e.preventDefault();
+    spin();
+  }
+});
+
+// 화면 크기가 바뀌면 룰렛과 꽃가루 캔버스 크기 조정
+new ResizeObserver(resizeCanvas).observe(wheelWrap);
+window.addEventListener('resize', resizeFx);
+
+/* =========================================================
+   11. 시작
+   ========================================================= */
+menuInput.value = SAMPLE_MENUS.join('\n');   // 예시 메뉴 12개로 시작
+resizeFx();
+refreshMenus();
+resizeCanvas();
+// 웹 글꼴이 늦게 로드되면 룰렛 글자를 다시 그림
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawWheel);
+</script>
+</body>
+</html>
